@@ -12,7 +12,7 @@ class _HomeState extends State<Home> {
   GeolocatorPlatform geolocatorPlatform = GeolocatorPlatform.instance;
   LocationPermission? permission;
 
-  Future<void> GetPermission() async {
+  Future<void> getPermission() async {
     permission = await geolocatorPlatform.checkPermission();
     if (permission == LocationPermission.denied) {
       // Request permission
@@ -23,24 +23,31 @@ class _HomeState extends State<Home> {
               'Permission permanently denied, please provide permission from your settings.');
         } else {
           print('Permission granted');
-          GetLocation();
+          getLocation();
         }
       } else {
         print('User Denied permission');
       }
     } else {
-      GetLocation();
+      getLocation();
     }
   }
 
-  Future<void> GetLocation() async {
-    final LocationSettings locationSettings = LocationSettings(
+  Future<void> getLocation() async {
+    final LocationSettings locationSettings = const LocationSettings(
       accuracy: LocationAccuracy.low,
       distanceFilter: 1000,
     );
     Position position =
         await Geolocator.getCurrentPosition(locationSettings: locationSettings);
     print(position);
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getPermission();
   }
 
   @override
