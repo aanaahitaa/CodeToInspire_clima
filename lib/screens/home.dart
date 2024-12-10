@@ -1,7 +1,8 @@
+import 'package:climate/services/networking.dart';
+import 'package:climate/utilities/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:climate/services/location.dart';
-import 'package:http/http.dart' as http;
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -11,17 +12,10 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  double? latitude, longitude;
+  GeolocatorPlatform geolocatorPlatform = GeolocatorPlatform.instance;
   LocationPermission? permission;
 
-  void getData() async{
-    http.Response response = await http.get(Uri.parse("http://api.openweathermap.org/data/2.5/weather?lat=35&lon=139&appid=078c4f6b9c9b3dba5ed8c615f16b30f7"));
-      if(response.statusCode == 200){
-        String data = response.body;
-        print(data);
-      }else{
-        print(response.statusCode);
-      };
-  }
   Future<void> getPermission() async {
     permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
@@ -46,8 +40,11 @@ class _HomeState extends State<Home> {
     Location location = Location();
     await location.getCurrentLocation();
 
-    print('Latitude: ${location.latitude}');
-    print('Longitude: ${location.longitude}');
+    latitude = location.latitude;
+    longitude = location.longitude;
+    NetworkHelper networkHelper = NetworkHelper(
+        "http://api.openweathermap.org/data/2.5/weather?lat=$latitude&lon=$longitude&appid=$apiKey");
+    var weatherData = await networkHelper.getData();
   }
 
   @override
@@ -58,7 +55,6 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    getData();
     return Scaffold(
       body: SafeArea(
         child: Center(
@@ -76,3 +72,9 @@ class _HomeState extends State<Home> {
     );
   }
 }
+
+
+
+// var id = decodedData['weather'][0]['id'];
+// var temperature = decodedData['main']['temp'];
+// var cityName = decodedData['name'];
